@@ -2,7 +2,7 @@ import Parser from 'rss-parser';
 import fs from 'fs';
 import { xml } from 'xml';
 
-const FEED_URL = 'https://www.feedy.com/feed'; // nguồn gốc
+const FEED_URL = 'https://forexlive.com/feed'; // nguồn gốc
 const MAX_FEEDS = 100;
 
 const CACHE1A_FILE = 'cache1a.json'; // bản lưu 1a
