@@ -1,13 +1,12 @@
 import Parser from 'rss-parser';
 import fs from 'fs';
-import pkg from 'xml'; // 👈 Sửa ở đây
-const { xml } = pkg;
+import RSS from 'rss';
 
-const FEED_URL = 'https://forexlive.com/feed'; // nguồn gốc
+const FEED_URL = 'https://forexlive.com/feed';
 const MAX_FEEDS = 100;
 
-const CACHE1A_FILE = 'cache1a.json'; // bản lưu 1a
-const CACHE2A_FILE = 'cache2a.xml';  // bản lưu 2a
+const CACHE1A_FILE = 'cache1a.json';
+const CACHE2A_FILE = 'cache2a.xml';
 
 const parser = new Parser();
 
@@ -21,31 +20,24 @@ function saveJSON(filePath, data) {
 }
 
 function createRSS(feedItems) {
-  const items = feedItems.map(item => ({
-    item: [
-      { title: item.title },
-      { link: item.link },
-      { pubDate: item.pubDate || new Date().toUTCString() },
-      ...(item.description ? [{ description: item.description }] : [])
-    ]
-  }));
+  const feed = new RSS({
+    title: 'Bản lưu 2a - Đã biến mất khỏi nguồn',
+    description: 'Danh sách bài viết không còn trong nguồn hiện tại.',
+    feed_url: 'https://your-github-page-url/cache2a.xml',
+    site_url: FEED_URL,
+    pubDate: new Date().toUTCString(),
+  });
 
-  const rssData = {
-    rss: [
-      { _attr: { version: '2.0' } },
-      {
-        channel: [
-          { title: 'Bản lưu 2a - Đã biến mất khỏi nguồn' },
-          { link: FEED_URL },
-          { description: 'Danh sách bài viết không còn xuất hiện trong feed nguồn.' },
-          { lastBuildDate: new Date().toUTCString() },
-          ...items
-        ]
-      }
-    ]
-  };
+  feedItems.forEach(item => {
+    feed.item({
+      title: item.title,
+      description: item.description || '',
+      url: item.link,
+      date: item.pubDate || new Date().toUTCString(),
+    });
+  });
 
-  return xml(rssData, { declaration: true, indent: '  ' });
+  return feed.xml({ indent: true });
 }
 
 async function main() {
@@ -54,19 +46,15 @@ async function main() {
 
   let cache1a = loadJSON(CACHE1A_FILE);
 
-  // Tìm bài mới không trùng
   const newItems = sourceFeed.items.filter(
     item => !cache1a.some(existing => existing.link === item.link)
   );
 
-  // Cập nhật cache1a
   cache1a = [...newItems, ...cache1a].slice(0, MAX_FEEDS);
   saveJSON(CACHE1A_FILE, cache1a);
 
-  // Tạo bản lưu 2a: những item trong cache1a không còn trong feed gốc hiện tại
   const cache2a = cache1a.filter(item => !sourceLinks.has(item.link));
 
-  // Xuất XML
   const rssOutput = createRSS(cache2a);
   fs.writeFileSync(CACHE2A_FILE, rssOutput);
 
