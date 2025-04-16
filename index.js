@@ -1,6 +1,7 @@
 import Parser from 'rss-parser';
 import fs from 'fs';
-import { xml } from 'xml';
+import pkg from 'xml'; // 👈 Sửa ở đây
+const { xml } = pkg;
 
 const FEED_URL = 'https://forexlive.com/feed'; // nguồn gốc
 const MAX_FEEDS = 100;
