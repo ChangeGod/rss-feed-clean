@@ -1,7 +1,7 @@
 {
   "name": "rss-cache-builder",
   "version": "1.0.0",
-  "type": "module",         // 👈 Thêm dòng này
+  "type": "module",         
   "main": "index.js",
   "dependencies": {
     "rss-parser": "^3.12.0",
